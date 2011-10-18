@@ -2,8 +2,12 @@
 #if !TARGET_IPHONE_SIMULATOR
 
 #ifdef __arm__
+#include <libkern/OSCacheControl.h>
+#define clear_cache(start, end) sys_icache_invalidate((start), (end)-(start))
+#else
 extern void __clear_cache (void *beg, void *end);
-#endif 
+#define clear_cache(start, end) __clear_cache(beg, end)
+#endif
 
 /* -----------------------------------------------------------------------
    ffi.c - Copyright (c) 1998, 2008  Red Hat, Inc.
@@ -289,7 +293,7 @@ ffi_prep_incoming_args_SYSV(char *stack, void **rvalue,
    *(unsigned int*) &__tramp[8] = 0xe59ff000; /* ldr pc, [pc] */	\
    *(unsigned int*) &__tramp[12] = __ctx;				\
    *(unsigned int*) &__tramp[16] = __fun;				\
-   __clear_cache((&__tramp[0]), (&__tramp[19]));			\
+   clear_cache((&__tramp[0]), (&__tramp[19]));			\
  })
 
 
